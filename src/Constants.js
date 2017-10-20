@@ -1,8 +1,20 @@
+const moment = require('moment')
 
 const DATEFORMAT        = 'MM/DD/YYYY'
 const TIMEFORMAT        = 'hhmm A'
 const DATETIMEFORMAT    = 'MM/DD/YYYY hh:mm A'
 const MILLISECONDFORMAT = 'MM/DD/YYYY hh:mm:ss.SSS A'
+
+const SQL_DATEFORMAT        = 'YYYY-MM-DD'
+const SQL_TIMEFORMAT        = 'HH:MM'
+const SQL_DATETIMEFORMAT    = 'YYYY-MM-DD HH:MM'
+const SQL_MILLISECONDFORMAT = 'YYYY-MM-DD HH:MM:SS.SSS'
+
+const MIN_MOMENT = moment(-8640000000000000)
+const MAX_MOMENT = moment(+8640000000000000)
+
+const MIN_DATE_TEXT = moment(-8640000000000000).format(DATEFORMAT)
+const MAX_DATE_TEXT = moment(+8640000000000000).format(DATEFORMAT)
 
 const MON               =  1
 const TUE               =  2
@@ -33,10 +45,21 @@ const ALLDAY_TYPE = 3
 
 class Constants {
 
-    static get DATEFORMAT()        { return DATEFORMAT        }
-    static get TIMEFORMAT()        { return TIMEFORMAT        }
-    static get DATETIMEFORMAT()    { return DATETIMEFORMAT    }
-    static get MILLISECONDFORMAT() { return MILLISECONDFORMAT }
+    static get DATEFORMAT()            { return DATEFORMAT            }
+    static get TIMEFORMAT()            { return TIMEFORMAT            }
+    static get DATETIMEFORMAT()        { return DATETIMEFORMAT        }
+    static get MILLISECONDFORMAT()     { return MILLISECONDFORMAT     }
+
+    static get SQL_DATEFORMAT()        { return SQL_DATEFORMAT        }
+    static get SQL_TIMEFORMAT()        { return SQL_TIMEFORMAT        }
+    static get SQL_DATETIMEFORMAT()    { return SQL_DATETIMEFORMAT    }
+    static get SQL_MILLISECONDFORMAT() { return SQL_MILLISECONDFORMAT }
+
+    static get MIN_MOMENT()            { return MIN_MOMENT            }
+    static get MAX_MOMENT()            { return MAX_MOMENT            }
+
+    static get MIN_DATE_TEXT()         { return MIN_DATE_TEXT         }
+    static get MAX_DATE_TEXT()         { return MAX_DATE_TEXT         }
 
     static get MON() { return MON }
     static get TUE() { return TUE }

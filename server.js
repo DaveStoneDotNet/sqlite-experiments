@@ -1,11 +1,20 @@
-// const SeedDb = require('./src/SeedDb')
-const Schedules = require('./src/Schedules')
+const moment = require('moment')
+
+const SchedulesDb = require('./src/SchedulesDb')
+const SeedDb = require('./src/SeedDb')
 
 function tester() {
 
-    Schedules.seedDb()
-        .then(() => console.log('DONE'))
-        .catch((err) => console.log('ERROR', err))
+    SeedDb.seed()
+        .then(() => {
+            SchedulesDb.getSchedules('2017-10-06')
+                .then((o) => {
+                    console.log('GET', o)
+                })
+            console.log('DONE')
+        })
+        .catch((err) => console.error(err.stack))
+
 }
 
 tester()
