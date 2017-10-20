@@ -3,13 +3,13 @@ const moment = require('moment')
 
 const Constants = require('./Constants')
 
-class Schedules {
+class SchedulesDb {
 
     constructor(path = './data/Schedules.db') {
         this.dbPath = path
     }
 
-    getScheduleBy(id) {
+    getSchedule(id) {
 
         return db.open(this.dbPath)
             .then(() => db.get(`SELECT * FROM Schedule WHERE id = ?`, id))
@@ -123,4 +123,4 @@ class Schedules {
             }
         }
 
-module.exports = Schedules
+module.exports = SchedulesDb
