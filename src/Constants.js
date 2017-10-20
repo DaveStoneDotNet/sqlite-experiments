@@ -10,11 +10,8 @@ const SQL_TIMEFORMAT        = 'HH:MM'
 const SQL_DATETIMEFORMAT    = 'YYYY-MM-DD HH:MM'
 const SQL_MILLISECONDFORMAT = 'YYYY-MM-DD HH:MM:SS.SSS'
 
-const MIN_MOMENT = moment(-8640000000000000)
-const MAX_MOMENT = moment(+8640000000000000)
-
-const MIN_DATE_TEXT = moment(-8640000000000000).format(DATEFORMAT)
-const MAX_DATE_TEXT = moment(+8640000000000000).format(DATEFORMAT)
+const MIN_DATE_TEXT = '0000-01-01 00:00:00.000'
+const MAX_DATE_TEXT = '9999-12-31 23:59:59.999'
 
 const MON               =  1
 const TUE               =  2

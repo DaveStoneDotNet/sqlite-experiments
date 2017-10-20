@@ -1,5 +1,7 @@
 const moment = require('moment')
 
+const Constants = require('./src/Constants')
+
 const SchedulesDb = require('./src/SchedulesDb')
 const SeedDb = require('./src/SeedDb')
 
@@ -7,7 +9,7 @@ function tester() {
 
     SeedDb.seed()
         .then(() => {
-            SchedulesDb.getSchedules('2017-10-06')
+            SchedulesDb.getSchedules()
                 .then((o) => {
                     console.log('GET', o)
                 })

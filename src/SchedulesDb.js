@@ -9,9 +9,14 @@ class Schedules {
 
     }
 
+    static getSqlDate() {
+
+        return db.get(`SELECT DATETIME('9999-12-31 23:59:59.999')`)
+    }
+
     static getScheduleBy(id) {
 
-        return db.get('SELECT * FROM Schedule WHERE id = ?', id)
+        return db.get(`SELECT * FROM Schedule WHERE id = ?`, id)
     }
 
     static getSchedules(startdatetime, enddatetime) {
