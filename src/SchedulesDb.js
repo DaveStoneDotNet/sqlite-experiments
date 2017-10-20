@@ -74,6 +74,53 @@ class Schedules {
             })
 
     }
-}
+
+    insertSchedule(jsonSchedule) {
+
+        return db.open(this.dbPath)
+            .then(() => {
+
+                return db.run(`INSERT INTO Schedule
+                               (
+                                   name, 
+                                   type, 
+                                   startdatetime, 
+                                   enddatetime
+                               )
+                               VALUES 
+                               (
+                                   $name, 
+                                   $type, 
+                                   $startdatetime, 
+                                   $enddatetime
+                               )
+                              `,
+                              {
+                                  $name: jsonSchedule.name, 
+                                  $type: jsonSchedule.type, 
+                                  $startdatetime: jsonSchedule.startdatetime,
+                                  $enddatetime: jsonSchedule.enddatetime
+                              })
+
+            })
+
+    }
+
+    deleteSchedule(id) {
+        
+                return db.open(this.dbPath)
+                    .then(() => {
+        
+                        return db.run(`DELETE FROM Schedule
+                                        WHERE id = $id
+                                      `,
+                                      {
+                                          $id: id
+                                      })
+        
+                    })
+        
+            }
+        }
 
 module.exports = Schedules
