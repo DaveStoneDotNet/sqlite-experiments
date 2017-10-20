@@ -8,57 +8,83 @@ const scheduleTypesJson = require('../seed/scheduleTypes.json')
 class SeedDb {
 
     constructor(path = './data/Schedules.db') {
-        this.db = new sqlite3.Database(path)
+        this.path = path
     }
 
     seedScheduleTypes() {
 
-        this.db.serialize(() => {
+        const self = this
 
-            this.db.run(Sql.CreateScheduleTypeTable)
-            this.db.run(Sql.DeleteScheduleTypeTable)
+        return new Promise((resolve, reject) => {
 
-            scheduleTypesJson.map((s) => {
-                this.db.run(Sql.InsertScheduleType, {
-                    $id: s.id,
-                    $name: s.name
+            try {
+
+                const db = new sqlite3.cached.Database(self.path)
+
+                db.serialize(() => {
+
+                    db.run(Sql.CreateScheduleTypeTable)
+                    db.run(Sql.DeleteScheduleTypeTable)
+
+                    scheduleTypesJson.map((s) => {
+                        db.run(Sql.InsertScheduleType, {
+                            $id: s.id,
+                            $name: s.name
+                        })
+                    })
+
+                    db.each(Sql.AllScheduleTypes, (err, row) => {
+                        console.log(`${row.id} : ${row.name}`)
+                    })
+
+                    db.close()
+
+                    resolve()
                 })
-            })
+            } catch (err) {
+                reject(err)
+            }
 
-            this.db.each(Sql.AllScheduleTypes, (err, row) => {
-                console.log(`${row.id} : ${row.name}`)
-            })
-
-            this.db.close()
-
-            console.log('DONE')
         })
 
     }
 
     seedSchedules() {
 
-        this.db.serialize(() => {
+        const self = this
 
-            this.db.run(Sql.CreateScheduleTable)
-            this.db.run(Sql.DeleteScheduleTable)
+        return new Promise((resolve, reject) => {
 
-            schedulesJson.map((s) => {
-                this.db.run(Sql.InsertSchedule, {
-                    $name: s.name,
-                    $type: s.type,
-                    $startdatetime: s.startdatetime,
-                    $enddatetime: s.enddatetime
+            try {
+
+                const db = new sqlite3.cached.Database(self.path)
+
+                db.serialize(() => {
+
+                    db.run(Sql.CreateScheduleTable)
+                    db.run(Sql.DeleteScheduleTable)
+
+                    schedulesJson.map((s) => {
+                        db.run(Sql.InsertSchedule, {
+                            $name: s.name,
+                            $type: s.type,
+                            $startdatetime: s.startdatetime,
+                            $enddatetime: s.enddatetime
+                        })
+                    })
+
+                    db.each(Sql.AllSchedules, (err, row) => {
+                        console.log(`${row.id} : ${row.name}`)
+                    })
+
+                    db.close()
+
+                    resolve()
                 })
-            })
 
-            this.db.each(Sql.AllSchedules, (err, row) => {
-                console.log(`${row.id} : ${row.name}`)
-            })
-
-            this.db.close()
-
-            console.log('DONE')
+            } catch (err) {
+                reject(err)
+            }
         })
 
     }
