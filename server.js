@@ -1,21 +1,11 @@
-const SeedDb = require('./src/SeedDb')
+// const SeedDb = require('./src/SeedDb')
+const Schedules = require('./src/Schedules')
 
 function tester() {
 
-    const seedDb = new SeedDb(':memory:')
-
-    seedDb.seedSchedules()
-        .then(() => console.log('OK SCHEDULES'))
-        .catch((err) => {
-            console.log('ERROR', err)
-        })
-
-    seedDb.seedScheduleTypes()
-        .then(() => console.log('OK TYPES'))
-        .catch((err) => {
-            console.log('ERROR', err)
-        })
-
+    Schedules.seedDb()
+        .then(() => console.log('DONE'))
+        .catch((err) => console.log('ERROR', err))
 }
 
 tester()

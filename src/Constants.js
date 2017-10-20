@@ -24,9 +24,12 @@ const RECURRING_DB_PATH =  './data/recurring'
 const UNBOUNDED_DB_PATH =  './data/unbounded'
 
 const SYSTEM_SCHEDULE   =  'system'
+const USER_SCHEDULE     =  'user'
 const ALLDAY_SCHEDULE   =  'all-day'
 
-const USER_TYPE = 1
+const SYSTEM_TYPE = 1
+const USER_TYPE   = 2
+const ALLDAY_TYPE = 3
 
 class Constants {
 
