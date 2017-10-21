@@ -8,25 +8,31 @@ const SeedDb = require('./src/SeedDb')
 const SchedulesDb = require('./src/SchedulesDb')
 const RecurringDb = require('./src/RecurringDb')
 
-function tester() {
+function seed() {
 
-    // SeedDb.seed()
-    //     .then(() => {
-    //         console.log('SEEDED')
-    //     })
-    //     .catch((err) => console.error(err.stack))
+    SeedDb.seed()
+        .then(() => {
+            console.log('SEEDED')
+        })
+        .catch((err) => console.error(err.stack))
+
+}
+
+function schedules() {
 
     const schedulesDb = new SchedulesDb()
 
     schedulesDb.getSchedule(1)
-        .then((o) => console.log('SELECTED', o))
+        .then((o) => console.log('SELECTED SCHEDULE', o))
+        .catch((err) => console.log(err))
 
     schedulesDb.getSchedules()
-        .then((o) => console.log('LISTED', o))
+        .then((o) => console.log('LISTED SCHEDULES', o))
+        .catch((err) => console.log(err))
 
     schedulesDb.getSchedule(1)
         .then((o) => schedulesDb.updateSchedule(o))
-        .then((o) => console.log('UPDATED', o))
+        .then((o) => console.log('UPDATED SCHEDULE:', o.changes))
         .catch((err) => console.log(err))
 
     const testSchedule = {
@@ -36,19 +42,27 @@ function tester() {
         'enddatetime': '10/06/2017 08:00 PM'
     }
 
-    // ---
+    schedulesDb.insertSchedule(testSchedule)
+        .then((o) => schedulesDb.deleteSchedule(o.lastID))
+        .then((o) => console.log('DELETED SCHEDULE:', o.changes))
+        .catch((err) => console.log(err))
 
+}
+
+function recurring() {
     const recurringDb = new RecurringDb()
 
     recurringDb.getSchedule(1)
-        .then((o) => console.log('SELECTED', o))
+        .then((o) => console.log('SELECTED RECURRING', o))
+        .catch((err) => console.log(err))
 
     recurringDb.getSchedules()
-        .then((o) => console.log('LISTED', o))
+        .then((o) => console.log('LISTED RECURRING', o))
+        .catch((err) => console.log(err))
 
     recurringDb.getSchedule(1)
         .then((o) => recurringDb.updateSchedule(o))
-        .then((o) => console.log('UPDATED', o))
+        .then((o) => console.log('UPDATED RECURRING:', o.changes))
         .catch((err) => console.log(err))
 
     const testRecurring = {
@@ -59,18 +73,14 @@ function tester() {
         "starttime": "03:00 PM",
         "endtime": "03:30 PM",
         "days": 31
-      }
+    }
 
     recurringDb.insertSchedule(testRecurring)
-        .then((o) => {
-            console.log('INSERTED', o.LastID)
-            recurringDb.deleteSchedule(o.lastID)
-                .then((oo) => {
-                    console.log('DELETED', oo)
-                })
-        })
+        .then((o) => recurringDb.deleteSchedule(o.lastID))
+        .then((o) => console.log('DELETED RECURRING:', o.changes))
         .catch((err) => console.log(err))
 
 }
 
-tester()
+schedules()
+recurring()

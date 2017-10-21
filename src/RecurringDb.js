@@ -33,16 +33,18 @@ class RecurringDb {
                     }
                 }
 
-                return db.all(`SELECT id, 
-                                      name, 
-                                      type, 
-                                      startdate, 
-                                      enddate, 
-                                      starttime, 
-                                      endtime
-                                 FROM Recurring 
-                                WHERE DATETIME(startdate) > DATETIME($startdate)
-                                  AND DATETIME(enddate)   < DATETIME($enddate)
+                return db.all(`
+                                SELECT id, 
+                                       name, 
+                                	   type, 
+                                	   startdate, 
+                                	   enddate, 
+                                	   starttime, 
+                                	   endtime, 
+                                	   days
+                                  FROM Recurring 
+                                 WHERE DATETIME(DATETIME(startdate || ' ' || starttime)) > DATETIME($startdate)
+                                   AND DATETIME(DATETIME(startdate || ' ' || starttime)) < DATETIME($enddate)
                               `,
                               {
                                   $startdate: startDate,
