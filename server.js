@@ -2,12 +2,14 @@ const moment = require('moment')
 const db = require('sqlite')
 
 const Constants = require('./src/Constants')
+const Common = require('./src/Common')
 
 const SeedDb = require('./src/SeedDb')
 
 const SchedulesDb = require('./src/SchedulesDb')
 const RecurringDb = require('./src/RecurringDb')
 const UnboundedDb = require('./src/UnboundedDb')
+const Schedules = require('./src/Schedules')
 
 function seed() {
 
@@ -117,7 +119,20 @@ function unbounded() {
 
 }
 
+function tester() {
+
+    const schedules = new Schedules()
+    schedules.getSchedules('2017-10-01', '2017-10-31')
+        .then((o) => {
+            console.log('SCHEDULES:', o.size)
+            o.forEach((s) => console.log(`${s.id} | ${s.name} | ${s.type} | ${s.dbSource} | ${s.start} | ${s.end} | ${Common.getWeekdayText(s.start)} | ${Common.getDaysText(s.days, s.start)}`))
+        })
+
+}
+
 //seed()
 // schedules()
 // recurring()
-unbounded()
+// unbounded()
+
+tester()

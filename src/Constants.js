@@ -1,9 +1,9 @@
 const moment = require('moment')
 
-const DATEFORMAT        = 'MM/DD/YYYY'
-const TIMEFORMAT        = 'hhmm A'
-const DATETIMEFORMAT    = 'MM/DD/YYYY hh:mm A'
-const MILLISECONDFORMAT = 'MM/DD/YYYY hh:mm:ss.SSS A'
+const DATEFORMAT        = 'YYYY-MM-DD'
+const TIMEFORMAT        = 'HH:mm'
+const DATETIMEFORMAT    = 'YYYY-MM-DD HH:mm'
+const MILLISECONDFORMAT = 'YYYY-MM-DD HH:mm:ss.SSS'
 
 const SQL_DATEFORMAT        = 'YYYY-MM-DD'
 const SQL_TIMEFORMAT        = 'HH:MM'
@@ -23,6 +23,14 @@ const SUN               = 64
 
 const WEEKDAYS          = MON | TUE | WED | THU | FRI   // 31
 const WEEKENDS          = SAT | SUN                     // 96
+
+const MOMENT_SUN        = 0
+const MOMENT_MON        = 1
+const MOMENT_TUE        = 2
+const MOMENT_WED        = 3
+const MOMENT_THU        = 4
+const MOMENT_FRI        = 5
+const MOMENT_SAT        = 6
 
 const SCHEDULES_DB      =  'schedules'
 const RECURRING_DB      =  'recurring'
@@ -66,6 +74,14 @@ class Constants {
     static get SAT() { return SAT }
     static get SUN() { return SUN }
 
+    static get MOMENT_SUN() { return MOMENT_SUN }
+    static get MOMENT_MON() { return MOMENT_MON }
+    static get MOMENT_TUE() { return MOMENT_TUE }
+    static get MOMENT_WED() { return MOMENT_WED }
+    static get MOMENT_THU() { return MOMENT_THU }
+    static get MOMENT_FRI() { return MOMENT_FRI }
+    static get MOMENT_SAT() { return MOMENT_SAT }
+
     static get WEEKDAYS() { return WEEKDAYS }
     static get WEEKENDS() { return WEEKENDS }
 
@@ -73,10 +89,13 @@ class Constants {
     static get RECURRING_DB() { return RECURRING_DB }
     static get UNBOUNDED_DB() { return UNBOUNDED_DB }
 
-    static get SYSTEM_SCHEDULE() { return SYSTEM_SCHEDULE }
-    static get ALLDAY_SCHEDULE() { return ALLDAY_SCHEDULE }
+    static get SYSTEM_TYPE()     { return SYSTEM_TYPE     }
+    static get USER_TYPE()       { return USER_TYPE       }
+    static get ALLDAY_TYPE()     { return ALLDAY_TYPE     }
 
-    static get USER_TYPE() { return USER_TYPE }
+    static get SYSTEM_SCHEDULE() { return SYSTEM_SCHEDULE }
+    static get USER_SCHEDULE()   { return USER_SCHEDULE   }
+    static get ALLDAY_SCHEDULE() { return ALLDAY_SCHEDULE }
 }
 
 module.exports = Constants

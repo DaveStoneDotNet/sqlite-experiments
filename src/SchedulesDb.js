@@ -12,7 +12,13 @@ class SchedulesDb {
     getSchedule(id) {
 
         return db.open(this.dbPath)
-            .then(() => db.get(`SELECT * FROM Schedule WHERE id = ?`, id))
+            .then(() => db.get(`SELECT id, 
+                                       name, 
+                                       type, 
+                                       startdatetime, 
+                                       enddatetime
+                                  FROM Schedule 
+                                 WHERE id = ?`, id))
 
     }
 
@@ -41,11 +47,10 @@ class SchedulesDb {
                                  FROM Schedule 
                                 WHERE DATETIME(startdatetime) > DATETIME($startdatetime)
                                   AND DATETIME(enddatetime)   < DATETIME($enddatetime)
-                              `,
-                              {
-                                  $startdatetime: startDate,
-                                  $enddatetime: endDate
-                              })
+                              `, {
+                    $startdatetime: startDate,
+                    $enddatetime: endDate
+                })
 
             })
 
@@ -62,14 +67,13 @@ class SchedulesDb {
                                       startdatetime = $startdatetime, 
                                       enddatetime = $enddatetime
                                 WHERE id = $id
-                              `,
-                              {
-                                  $id: jsonSchedule.id, 
-                                  $name: jsonSchedule.name, 
-                                  $type: jsonSchedule.type, 
-                                  $startdatetime: jsonSchedule.startdatetime,
-                                  $enddatetime: jsonSchedule.enddatetime
-                              })
+                              `, {
+                    $id: jsonSchedule.id,
+                    $name: jsonSchedule.name,
+                    $type: jsonSchedule.type,
+                    $startdatetime: jsonSchedule.startdatetime,
+                    $enddatetime: jsonSchedule.enddatetime
+                })
 
             })
 
@@ -94,33 +98,31 @@ class SchedulesDb {
                                    $startdatetime, 
                                    $enddatetime
                                )
-                              `,
-                              {
-                                  $name: jsonSchedule.name, 
-                                  $type: jsonSchedule.type, 
-                                  $startdatetime: jsonSchedule.startdatetime,
-                                  $enddatetime: jsonSchedule.enddatetime
-                              })
+                              `, {
+                    $name: jsonSchedule.name,
+                    $type: jsonSchedule.type,
+                    $startdatetime: jsonSchedule.startdatetime,
+                    $enddatetime: jsonSchedule.enddatetime
+                })
 
             })
 
     }
 
     deleteSchedule(id) {
-        
-                return db.open(this.dbPath)
-                    .then(() => {
-        
-                        return db.run(`DELETE FROM Schedule
+
+        return db.open(this.dbPath)
+            .then(() => {
+
+                return db.run(`DELETE FROM Schedule
                                         WHERE id = $id
-                                      `,
-                                      {
-                                          $id: id
-                                      })
-        
-                    })
-        
-            }
-        }
+                                      `, {
+                    $id: id
+                })
+
+            })
+
+    }
+}
 
 module.exports = SchedulesDb
