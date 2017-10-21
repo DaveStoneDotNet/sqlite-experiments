@@ -3576,12 +3576,12 @@ INSERT INTO Recurring (name, type, startdate, enddate, starttime, endtime, days)
 INSERT INTO Recurring (name, type, startdate, enddate, starttime, endtime, days) VALUES ('recurring 24', 2, '2017-10-09', '2017-10-13', '05:00', '05:30', 127);
 INSERT INTO Recurring (name, type, startdate, enddate, starttime, endtime, days) VALUES ('recurring 25', 2, '2017-10-14', '2017-10-15', '09:00', '09:30', 127);
 
-INSERT INTO Unbounded (name, type, eventdate, starttime, endtime, days) VALUES ('weekday',     1, '05:30', '21:00', 31, '');
-INSERT INTO Unbounded (name, type, eventdate, starttime, endtime, days) VALUES ('work',        1, '06:00', '16:00', 31, '');
-INSERT INTO Unbounded (name, type, eventdate, starttime, endtime, days) VALUES ('weekend',     1, '07:00', '23:00', 96, '');
-INSERT INTO Unbounded (name, type, eventdate, starttime, endtime, days) VALUES ('birthday',    3, '',      '',       0, '1962-03-07');
-INSERT INTO Unbounded (name, type, eventdate, starttime, endtime, days) VALUES ('anniversary', 3, '',      '',       0, '1998-09-14');
-INSERT INTO Unbounded (name, type, eventdate, starttime, endtime, days) VALUES ('special day', 3, '',      '',       0, '2017-10-17');
+INSERT INTO Unbounded (name, type, starttime, endtime, days, eventdate) VALUES ('weekday',     1, '05:30', '21:00', 31, '');
+INSERT INTO Unbounded (name, type, starttime, endtime, days, eventdate) VALUES ('work',        1, '06:00', '16:00', 31, '');
+INSERT INTO Unbounded (name, type, starttime, endtime, days, eventdate) VALUES ('weekend',     1, '07:00', '23:00', 96, '');
+INSERT INTO Unbounded (name, type, starttime, endtime, days, eventdate) VALUES ('birthday',    3, '',      '',       0, '1962-03-07');
+INSERT INTO Unbounded (name, type, starttime, endtime, days, eventdate) VALUES ('anniversary', 3, '',      '',       0, '1998-09-14');
+INSERT INTO Unbounded (name, type, starttime, endtime, days, eventdate) VALUES ('special day', 3, '',      '',       0, '2017-10-17');
 
 --------------------------------------------------------------------------------
 -- Down

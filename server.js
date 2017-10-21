@@ -7,6 +7,7 @@ const SeedDb = require('./src/SeedDb')
 
 const SchedulesDb = require('./src/SchedulesDb')
 const RecurringDb = require('./src/RecurringDb')
+const UnboundedDb = require('./src/UnboundedDb')
 
 function seed() {
 
@@ -50,6 +51,7 @@ function schedules() {
 }
 
 function recurring() {
+
     const recurringDb = new RecurringDb()
 
     recurringDb.getSchedule(1)
@@ -82,5 +84,40 @@ function recurring() {
 
 }
 
-schedules()
-recurring()
+function unbounded() {
+
+    const unboundedDb = new UnboundedDb()
+
+    unboundedDb.getSchedule(1)
+        .then((o) => console.log('SELECTED UNBOUNDED', o))
+        .catch((err) => console.log(err))
+
+    unboundedDb.getSchedules()
+        .then((o) => console.log('LISTED UNBOUNDED', o))
+        .catch((err) => console.log(err))
+
+    unboundedDb.getSchedule(1)
+        .then((o) => unboundedDb.updateSchedule(o))
+        .then((o) => console.log('UPDATED UNBOUNDED:', o.changes))
+        .catch((err) => console.log(err))
+
+    const testRecurring = {
+        "name": "TEST UNBOUNDED INSERT",
+        "type": 2,
+        "eventdate": "10/01/2017",
+        "starttime": "03:00 PM",
+        "endtime": "03:30 PM",
+        "days": 31
+    }
+
+    unboundedDb.insertSchedule(testRecurring)
+        .then((o) => unboundedDb.deleteSchedule(o.lastID))
+        .then((o) => console.log('DELETED UNBOUNDED:', o.changes))
+        .catch((err) => console.log(err))
+
+}
+
+//seed()
+// schedules()
+// recurring()
+unbounded()
