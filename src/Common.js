@@ -30,7 +30,7 @@ class Common {
 
     static ensureDateTimeMoment(dateTime) {
         if (typeof dateTime === 'string') {
-            return moment(dateTime, Constants.MILLISECONDFORMAT)
+            return moment(dateTime, Constants.DATETIMEFORMAT)
         } else if (dateTime instanceof Date) {
             return moment(dateTime)
         } else if (moment.isMoment(dateTime)) {
@@ -73,6 +73,11 @@ class Common {
         return daysText
     }
 
+    static getNextDay(dateTimeText) {
+
+        return Common.getDateTimeMoment(dateTimeText).add(1, 'day').startOf('day')
+    }
+
     static getAppDate(start, end, format = 'YYYY-MM-DD HH:mm:ss.SSS') {
 
         const appDate = {
@@ -98,7 +103,7 @@ class Common {
         return Common.ensureAppDate(appDate)
     }
 
-    static ensureAppDate(appDate, format = 'YYYY-MM-DD HH:mm:ss.SSS') {
+    static ensureAppDate(appDate, format = 'YYYY-MM-DD HH:mm') {
 
         const mappedDate = Object.assign(appDate)
 
@@ -119,7 +124,7 @@ class Common {
         }
 
         if (appDate.start.moment.isSame(appDate.end.moment)) {
-            appDate.end.moment = appDate.start.moment.add(1, 'day').startOf('day')
+            appDate.end.moment = Common.getNextDay(appDate.start.text)
             mappedDate.end.text = appDate.end.moment.format(format)
         }
 

@@ -2,6 +2,7 @@ const db = require('sqlite')
 const moment = require('moment')
 
 const Constants = require('./Constants')
+const Common = require('./Common')
 
 class SchedulesDb {
 
@@ -35,7 +36,7 @@ class SchedulesDb {
                     if (startDate === Constants.MIN_DATE_TEXT) {
                         endDate = Constants.MAX_DATE_TEXT
                     } else {
-                        endDate = moment(startdatetime).add(1, 'day').startOf('day').format(Constants.SQL_DATEFORMAT)
+                        endDate = Common.getNextDay(startdatetime).format(Constants.SQL_DATEFORMAT)
                     }
                 }
 

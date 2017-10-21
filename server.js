@@ -122,7 +122,7 @@ function unbounded() {
 function tester() {
 
     const schedules = new Schedules()
-    schedules.getSchedules('2017-10-01', '2017-10-31')
+    schedules.getSchedules('2017-10-01')
         .then((o) => {
             console.log('SCHEDULES:', o.size)
             o.forEach((s) => console.log(`${s.id} | ${s.name} | ${s.type} | ${s.dbSource} | ${s.start} | ${s.end} | ${Common.getWeekdayText(s.start)} | ${Common.getDaysText(s.days, s.start)}`))

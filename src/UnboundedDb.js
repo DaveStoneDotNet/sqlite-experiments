@@ -2,6 +2,7 @@ const db = require('sqlite')
 const moment = require('moment')
 
 const Constants = require('./Constants')
+const Common = require('./Common')
 
 class UnboundedDb {
 

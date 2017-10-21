@@ -1,7 +1,6 @@
 const moment = require('moment')
 
 const Constants = require('./Constants')
-
 const Common = require('./Common')
 
 const SchedulesDb = require('./SchedulesDb')
@@ -78,10 +77,10 @@ class Schedules {
         const days = Schedules.getDaysArray(recurringSchedule)
 
         const startMoment = Common.getDateTimeMoment(appDate.start.text)
-        const endMoment = Common.getDateTimeMoment(appDate.end.text).add(1, 'day')
+        const endMoment = Common.getDateTimeMoment(appDate.end.text)
 
         const scheduleStartMoment = Common.getDateTimeMoment(recurringSchedule.startdate)
-        const scheduleEndMoment = Common.getDateTimeMoment(recurringSchedule.enddate).add(1, 'day')
+        const scheduleEndMoment = Common.getDateTimeMoment(recurringSchedule.enddate)
 
         for (let m = startMoment; m.isBefore(endMoment); m.add(1, 'days')) {
 
@@ -165,7 +164,7 @@ class Schedules {
             const days = Schedules.getDaysArray(systemSchedule)
 
             const startMoment = Common.getDateTimeMoment(appDate.start.text)
-            const endMoment = Common.getDateTimeMoment(appDate.end.text).add(1, 'day')
+            const endMoment = Common.getDateTimeMoment(appDate.end.text)
 
             for (let m = startMoment; m.isBefore(endMoment); m.add(1, 'days')) {
                 const isIncluded = days.includes(m.day())
@@ -197,15 +196,15 @@ class Schedules {
         allDaySchedules.forEach((allDaySchedule) => {
 
             const startMoment = Common.getDateTimeMoment(appDate.start.text)
-            const endMoment = Common.getDateTimeMoment(appDate.end.text).add(1, 'day')
+            const endMoment = Common.getDateTimeMoment(appDate.end.text)
 
-            const eventdate = moment(allDaySchedule.eventdate, Constants.SQL_MILLISECONDFORMAT)
+            const eventdate = moment(allDaySchedule.eventdate, Constants.SQL_DATETIMEFORMAT)
 
             for (let m = startMoment; m.isBefore(endMoment); m.add(1, 'days')) {
 
                 if (Common.isSameDay(m, eventdate)) {
 
-                    const startText = `${m.format(Constants.DATEFORMAT)} 00:00:00.000 AM`
+                    const startText = `${m.format(Constants.DATEFORMAT)} 00:00`
                     const endText = `${m.format(Constants.DATEFORMAT)} 11:59:59.999 PM`
 
                     mappedSchedules.add({
