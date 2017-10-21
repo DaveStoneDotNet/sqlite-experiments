@@ -12,7 +12,19 @@ class RecurringDb {
     getSchedule(id) {
 
         return db.open(this.dbPath)
-            .then(() => db.get(`SELECT * FROM Recurring WHERE id = ?`, id))
+            .then(() => db.get(`SELECT A.id, 
+                                       A.name, 
+                                	   A.type, 
+                                	   A.startdate, 
+                                	   A.enddate, 
+                                	   A.starttime, 
+                                	   A.endtime, 
+                                       A.days, 
+                                       B.name typeDescription
+                                  FROM Recurring    A
+                                  JOIN ScheduleType B ON B.id = A.type
+                                 WHERE A.id = ?`, 
+                                 id))
 
     }
 
@@ -34,17 +46,19 @@ class RecurringDb {
                 }
 
                 return db.all(`
-                                SELECT id, 
-                                       name, 
-                                	   type, 
-                                	   startdate, 
-                                	   enddate, 
-                                	   starttime, 
-                                	   endtime, 
-                                	   days
-                                  FROM Recurring 
-                                 WHERE DATETIME(DATETIME(startdate || ' ' || starttime)) > DATETIME($startdate)
-                                   AND DATETIME(DATETIME(startdate || ' ' || starttime)) < DATETIME($enddate)
+                                SELECT A.id, 
+                                       A.name, 
+                                	   A.type, 
+                                	   A.startdate, 
+                                	   A.enddate, 
+                                	   A.starttime, 
+                                	   A.endtime, 
+                                	   A.days, 
+                                       B.name typeDescription
+                                  FROM Recurring A
+                                  JOIN ScheduleType B ON B.id = A.type
+                                 WHERE DATETIME(DATETIME(A.startdate || ' ' || A.starttime)) > DATETIME($startdate)
+                                   AND DATETIME(DATETIME(A.startdate || ' ' || A.starttime)) < DATETIME($enddate)
                               `,
                               {
                                   $startdate: startDate,
