@@ -8,7 +8,7 @@ class SeedDb {
             Promise.resolve()
                 .then(() => db.open(path, { Promise }))
                 .then(() => db.migrate({ force: 'last' })) 
-                .then(() => resolve()) 
+                .then((o) => resolve(o)) 
                 .catch((err) => console.error(err.stack))
         })
     }

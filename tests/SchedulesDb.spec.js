@@ -1,106 +1,32 @@
 const expect = require('chai').expect
 const moment = require('moment')
+const sqlite = require('sqlite')
 
 const Constants = require('../src/Constants')
 
+const SeedDb = require('../src/SeedDb')
+
 const SchedulesDb = require('../src/SchedulesDb.js')
-const DbKeys = require('../src/DbKeys')
 
 describe('Schedule DB', () => {
 
     const INSERT_DATE = '10/05/2017 05:00 PM'
 
-    const db = new SchedulesDb('./data/tests/schedules')
+    let db = null
+    let schedulesDb = null
 
     let dbCount = 0
 
-    beforeEach(() => {
-        return db.getSchedules()
-            .then((schedules) => {
-                dbCount = schedules.size
-            })
-    })
+    const testDbPath = './data/Tests.db'
 
-    function getTestSchedule() {
-
-        const testMoment = moment(INSERT_DATE, Constants.DATETIMEFORMAT)
-        const dbKey = DbKeys.getEncodedDbKey(INSERT_DATE)
-        const nextMillisecondText = DbKeys.getDecodedDateText(DbKeys.getNextMillisecondEncodedDbKey(dbKey))
-        
-        const schedule = {
-            name: 'meeting 1',
-            type: 'user',
-            start: INSERT_DATE,
-            end: testMoment.add(1, 'hour').format(Constants.DATETIMEFORMAT)
-        }
-
-        return {
-            testMoment,
-            nextMillisecondText, 
-            dbKey,
-            schedule
-        }
-    }
-
-    it('should test insertSchedule', (done) => {
-
-        const scheduleInfo = getTestSchedule()
-
-        db.insertSchedule(scheduleInfo.schedule)
-            .then((dbKey) => {
-                return db.getSchedule(dbKey)
-            })
-            .then((jsonSchedule) => {
-                expect(jsonSchedule.exists).to.be.true
-                expect(jsonSchedule.schedule.name).to.equal(scheduleInfo.schedule.name)
-                return db.delSchedule(scheduleInfo.dbKey)
-            })
-            .then((dbKey) => {
-                return db.getSchedule(dbKey)
-            })
-            .then((jsonSchedule) => {
-                expect(jsonSchedule.exists).to.be.false
-                expect(jsonSchedule.schedule).to.be.undefined
-                return db.delSchedule(scheduleInfo.dbKey)
-            })
-            .then((dbKey) => { return db.getSchedules() })
-            .then((schedules) => {
-                expect(schedules.size).to.equal(dbCount)
+    before((done) => {
+        SeedDb.seed(testDbPath)
+            .then((o) => {
+                schedulesDb = new SchedulesDb(testDbPath)
                 done()
             })
             .catch((err) => {
-                done()
-                console.log('ERROR: ', err)
-            })
-
-    })
-
-    it('should test updateSchedule', (done) => {
-
-        const scheduleInfo = getTestSchedule()
-
-        const updatedName = 'Updated Schedule'
-
-        db.insertSchedule(scheduleInfo.schedule)
-            .then((dbKey) => { return db.getSchedule(dbKey) })
-            .then((jsonSchedule) => {
-                expect(jsonSchedule.exists).to.be.true
-                expect(jsonSchedule.schedule.name).to.equal(scheduleInfo.schedule.name)
-                jsonSchedule.schedule.name = updatedName
-                return db.updateSchedule(jsonSchedule.schedule.dbKey, jsonSchedule.schedule)
-            })
-            .then((jsonSchedule) => {
-                expect(jsonSchedule.name).to.equal(updatedName)
-                return db.delSchedule(jsonSchedule.dbKey)
-            })
-            .then(() => { return db.getSchedules() })
-            .then((schedules) => {
-                expect(schedules.size).to.equal(dbCount)
-                done()
-            })
-            .catch((err) => {
-                console.log('ERROR: ', err)
-                assert.fail(error)
+                console.error(err.stack)
                 done()
             })
 
@@ -108,122 +34,190 @@ describe('Schedule DB', () => {
 
     it('should test getSchedule', (done) => {
 
-        const scheduleInfo = getTestSchedule()
+        schedulesDb.getSchedule(1)
+            .then((schedule) => {
 
-        db.insertSchedule(scheduleInfo.schedule)
-            .then((dbKey) => { return db.getSchedule(dbKey) })
-            .then((jsonSchedule) => {
-                expect(jsonSchedule.exists).to.be.true
-                expect(jsonSchedule.schedule.name).to.equal(scheduleInfo.schedule.name)
-                return db.delSchedule(scheduleInfo.dbKey)
-            })
-            .then((dbKey) => { return db.getSchedule(dbKey) })
-            .then((jsonSchedule) => {
-                expect(jsonSchedule.exists).to.be.false
-                expect(jsonSchedule.schedule).to.be.undefined
-                return db.delSchedule(scheduleInfo.dbKey)
-            })
-            .then((dbKey) => { return db.getSchedules() })
-            .then((schedules) => {
-                expect(schedules.size).to.equal(dbCount)
+                expect(schedule).not.to.be.null
+                expect(schedule.id).to.equal(1)
+                expect(schedule.name).to.equal('meeting 1')
+                expect(schedule.type).to.equal(2)
+                expect(schedule.typeDescription).to.equal('system')
+                expect(schedule.startdatetime).to.equal('2017-10-06 19:00')
+                expect(schedule.enddatetime).to.equal('2017-10-06 20:00')
+                expect(moment(schedule.startdatetime, Constants.DATETIMEFORMAT).isValid()).to.be.true
+                expect(moment(schedule.enddatetime, Constants.DATETIMEFORMAT).isValid()).to.be.true
+
                 done()
             })
             .catch((err) => {
+                console.error(err.stack)
                 done()
-                console.log('ERROR: ', err)
             })
 
     })
 
     it('should test getSchedules', (done) => {
 
-        const scheduleInfo = getTestSchedule()
-
-        let insertedKey = ''
-
-        db.insertSchedule(scheduleInfo.schedule)
-            .then((dbKey) => {
-                insertedKey = dbKey
-                return db.getSchedules()
-            })
-            .then((jsonSchedules) => {
-                expect(jsonSchedules.size).to.equal(dbCount + 1)
-                return db.delSchedule(insertedKey)
-            })
-            .then(() => { return db.getSchedules() })
+        schedulesDb.getSchedules()
             .then((schedules) => {
-                expect(schedules.size).to.equal(dbCount)
+
+                expect(schedules[0]).not.to.be.null
+                expect(schedules[0].id).to.equal(1)
+                expect(schedules[0].name).to.equal('meeting 1')
+                expect(schedules[0].type).to.equal(2)
+                expect(schedules[0].typeDescription).to.equal('system')
+                expect(schedules[0].startdatetime).to.equal('2017-10-06 19:00')
+                expect(schedules[0].enddatetime).to.equal('2017-10-06 20:00')
+                expect(moment(schedules[0].startdatetime, Constants.DATETIMEFORMAT).isValid()).to.be.true
+                expect(moment(schedules[0].enddatetime, Constants.DATETIMEFORMAT).isValid()).to.be.true
+
                 done()
             })
             .catch((err) => {
+                console.error(err.stack)
                 done()
-                console.log('ERROR: ', err)
             })
 
     })
 
-    it('should test delSchedule', (done) => {
+    it('should test updateSchedule', (done) => {
 
-        const scheduleInfo = getTestSchedule()
+        let schedule
 
-        let insertedKey = ''
+        const scheduleName = `UPDATED NAME ${moment().format('hhmmssSSSS')}`
 
-        db.insertSchedule(scheduleInfo.schedule)
-            .then((dbKey) => {
-                insertedKey = dbKey
-                return db.getSchedule(dbKey)
+        schedulesDb.getSchedule(10)
+            .then((o) => {
+
+                schedule = o
+
             })
-            .then((jsonSchedule) => {
-                expect(jsonSchedule.exists).to.be.true
-                expect(jsonSchedule.schedule.name).to.equal(scheduleInfo.schedule.name)
-                return db.delSchedule(jsonSchedule.schedule.dbKey)
-            })
-            .then((dbKey) => {
-                return db.getSchedule(dbKey)
-            })
-            .then((jsonSchedule) => {
-                expect(jsonSchedule.exists).to.be.false
-                expect(jsonSchedule.schedule).to.be.undefined
-                return db.getSchedules()
-            })
-            .then((schedules) => {
-                expect(schedules.size).to.equal(dbCount)
-                done()
+            .then(() => {
+
+                schedule.name = scheduleName
+
+                schedulesDb.updateSchedule(schedule)
+                    .then(() => {
+                        schedulesDb.getSchedule(10)
+                            .then((updateSchedule) => {
+                                expect(updateSchedule).not.to.be.null
+                                expect(updateSchedule.id).to.equal(10)
+                                expect(updateSchedule.name).to.equal(scheduleName)
+                                expect(updateSchedule.type).to.equal(schedule.type)
+                                expect(updateSchedule.typeDescription).to.equal(schedule.typeDescription)
+                                expect(updateSchedule.startdatetime).to.equal(schedule.startdatetime)
+                                expect(updateSchedule.enddatetime).to.equal(schedule.enddatetime)
+                                expect(moment(updateSchedule.startdatetime, Constants.DATETIMEFORMAT).isValid()).to.be.true
+                                expect(moment(updateSchedule.enddatetime, Constants.DATETIMEFORMAT).isValid()).to.be.true
+                                done()
+                            })
+
+                    })
+
             })
             .catch((err) => {
+                console.error(err.stack)
                 done()
-                console.log('ERROR: ', err)
             })
 
     })
 
-    it('should test getNextDbKey', (done) => {
+    it('should test insertSchedule', (done) => {
 
-        const scheduleInfo = getTestSchedule()
+        let schedule
+        let insertedId
 
-        db.insertSchedule(scheduleInfo.schedule)
-            .then((dbKey) => { 
-                return db.getNextDbKey(dbKey) 
+        const scheduleName = `UPDATED NAME ${moment().format('hhmmssSSSS')}`
+
+        schedulesDb.getSchedule(10)
+            .then((o) => {
+
+                schedule = o
+
             })
-            .then((nextDbKey) => {
-                expect(DbKeys.getDecodedDateText(nextDbKey)).to.equal(scheduleInfo.nextMillisecondText)
-                return db.delSchedule(scheduleInfo.dbKey)
-            })
-            .then((dbKey) => { 
-                return db.getSchedule(dbKey) 
-            })
-            .then((jsonSchedule) => {
-                expect(jsonSchedule.exists).to.be.false
-                expect(jsonSchedule.schedule).to.be.undefined
-                return db.getSchedules() 
-            })
-            .then((schedules) => {
-                expect(schedules.size).to.equal(dbCount)
-                done()
+            .then(() => {
+
+                schedule.name = scheduleName
+
+                schedulesDb.insertSchedule(schedule)
+                    .then((o) => {
+                        insertedId = o.lastID
+                        return schedulesDb.getSchedule(insertedId)
+                    })
+                    .then((updateSchedule) => {
+
+                        expect(updateSchedule).not.to.be.null
+                        expect(updateSchedule.id).to.equal(insertedId)
+                        expect(updateSchedule.name).to.equal(scheduleName)
+                        expect(updateSchedule.type).to.equal(schedule.type)
+                        expect(updateSchedule.typeDescription).to.equal(schedule.typeDescription)
+                        expect(updateSchedule.startdatetime).to.equal(schedule.startdatetime)
+                        expect(updateSchedule.enddatetime).to.equal(schedule.enddatetime)
+                        expect(moment(updateSchedule.startdatetime, Constants.DATETIMEFORMAT).isValid()).to.be.true
+                        expect(moment(updateSchedule.enddatetime, Constants.DATETIMEFORMAT).isValid()).to.be.true
+
+                        return schedulesDb.deleteSchedule(insertedId)
+                    })
+                    .then((o) => {
+
+                        expect(o.changes).to.equal(1)
+                        done()
+                    })
+
             })
             .catch((err) => {
+                console.error(err.stack)
                 done()
-                console.log('ERROR: ', err)
+            })
+
+    })
+
+    it('should test deleteSchedule', (done) => {
+
+        let schedule
+        let insertedId
+
+        const scheduleName = `UPDATED NAME ${moment().format('hhmmssSSSS')}`
+
+        schedulesDb.getSchedule(10)
+            .then((o) => {
+
+                schedule = o
+
+            })
+            .then(() => {
+
+                schedule.name = scheduleName
+
+                schedulesDb.insertSchedule(schedule)
+                    .then((o) => {
+                        insertedId = o.lastID
+                        return schedulesDb.getSchedule(insertedId)
+                    })
+                    .then((updateSchedule) => {
+
+                        expect(updateSchedule).not.to.be.null
+                        expect(updateSchedule.id).to.equal(insertedId)
+                        expect(updateSchedule.name).to.equal(scheduleName)
+                        expect(updateSchedule.type).to.equal(schedule.type)
+                        expect(updateSchedule.typeDescription).to.equal(schedule.typeDescription)
+                        expect(updateSchedule.startdatetime).to.equal(schedule.startdatetime)
+                        expect(updateSchedule.enddatetime).to.equal(schedule.enddatetime)
+                        expect(moment(updateSchedule.startdatetime, Constants.DATETIMEFORMAT).isValid()).to.be.true
+                        expect(moment(updateSchedule.enddatetime, Constants.DATETIMEFORMAT).isValid()).to.be.true
+
+                        return schedulesDb.deleteSchedule(insertedId)
+                    })
+                    .then((o) => {
+
+                        expect(o.changes).to.equal(1)
+                        done()
+                    })
+
+            })
+            .catch((err) => {
+                console.error(err.stack)
+                done()
             })
 
     })

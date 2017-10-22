@@ -5,7 +5,6 @@ const Constants = require('../src/Constants')
 
 const Common = require('../src/Common')
 const RecurringDb = require('../src/RecurringDb.js')
-const DbKeys = require('../src/DbKeys')
 
 describe('Recurring DB', () => {
 

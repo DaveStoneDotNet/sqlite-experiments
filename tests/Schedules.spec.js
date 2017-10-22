@@ -4,7 +4,6 @@ const moment = require('moment')
 const Constants = require('../src/Constants')
 
 const SchedulesDb = require('../src/SchedulesDb.js')
-const DbKeys = require('../src/DbKeys')
 
 describe('Schedules', () => {
 

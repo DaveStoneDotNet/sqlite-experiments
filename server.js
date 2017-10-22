@@ -119,7 +119,7 @@ function unbounded() {
 
 }
 
-function tester() {
+function list() {
 
     const schedules = new Schedules()
     schedules.getSchedules('2017-10-01')
@@ -127,6 +127,9 @@ function tester() {
             console.log('SCHEDULES:', o.size)
             o.forEach((s) => console.log(`${s.id} | ${s.name} | ${s.type} | ${s.dbSource} | ${s.start} | ${s.end} | ${Common.getWeekdayText(s.start)} | ${Common.getDaysText(s.days, s.start)}`))
         })
+}
+
+function tester() {
 
 }
 
@@ -134,5 +137,6 @@ function tester() {
 // schedules()
 // recurring()
 // unbounded()
+ list()
 
 //tester()

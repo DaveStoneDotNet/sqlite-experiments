@@ -4,7 +4,6 @@ const moment = require('moment')
 const Constants = require('../src/Constants')
 
 const UnboundedDb = require('../src/UnboundedDb.js')
-const DbKeys = require('../src/DbKeys')
 
 describe('Unbounded DB', () => {
 

@@ -13,13 +13,15 @@ class SchedulesDb {
     getSchedule(id) {
 
         return db.open(this.dbPath)
-            .then(() => db.get(`SELECT id, 
-                                       name, 
-                                       type, 
-                                       startdatetime, 
-                                       enddatetime
-                                  FROM Schedule 
-                                 WHERE id = ?`, id))
+            .then(() => db.get(`SELECT A.id, 
+                                       A.name, 
+                                       A.type, 
+                                       A.startdatetime, 
+                                       A.enddatetime, 
+                                       B.name typeDescription
+                                  FROM Schedule     A
+                                  JOIN ScheduleType B ON B.id = A.type
+                                 WHERE A.id = ?`, id))
 
     }
 
@@ -40,14 +42,16 @@ class SchedulesDb {
                     }
                 }
 
-                return db.all(`SELECT id, 
-                                      name, 
-                                      type, 
-                                      startdatetime, 
-                                      enddatetime
-                                 FROM Schedule 
-                                WHERE DATETIME(startdatetime) > DATETIME($startdatetime)
-                                  AND DATETIME(enddatetime)   < DATETIME($enddatetime)
+                return db.all(`SELECT A.id, 
+                                      A.name, 
+                                      A.type, 
+                                      A.startdatetime, 
+                                      A.enddatetime, 
+                                      B.name typeDescription
+                                 FROM Schedule     A
+                                 JOIN ScheduleType B ON B.id = A.type
+                                WHERE DATETIME(A.startdatetime) > DATETIME($startdatetime)
+                                  AND DATETIME(A.enddatetime)   < DATETIME($enddatetime)
                               `, {
                     $startdatetime: startDate,
                     $enddatetime: endDate
