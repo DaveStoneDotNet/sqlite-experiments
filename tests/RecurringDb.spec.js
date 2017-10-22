@@ -1,123 +1,32 @@
 const expect = require('chai').expect
 const moment = require('moment')
+const sqlite = require('sqlite')
 
 const Constants = require('../src/Constants')
 
-const Common = require('../src/Common')
+const SeedDb = require('../src/SeedDb')
+
 const RecurringDb = require('../src/RecurringDb.js')
 
-describe('Recurring DB', () => {
+describe('Schedule DB', () => {
 
-    const INSERT_DATE = '05/05/2005'
-    const INSERT_TIME = '05:00 PM'
+    const INSERT_DATE = '10/05/2017 05:00 PM'
 
-    const db = new RecurringDb('./data/tests/recurring')
+    let db = null
+    let recurringDb = null
 
     let dbCount = 0
 
-    beforeEach(() => {
-        return db.getSchedules()
-            .then((schedules) => {
-                dbCount = schedules.size
-            })
-    })
+    const testDbPath = './data/Tests.db'
 
-    function getTestSchedule() {
-
-        const startDateTimeMoment = Common.getDateTimeMoment(INSERT_DATE, INSERT_TIME)
-        const endDateTimeMoment = Common.getDateTimeMoment(INSERT_DATE, INSERT_TIME).add(1, 'hour')
-
-        const startDateText = startDateTimeMoment.format(Constants.DATEFORMAT)
-        const startTimeText = startDateTimeMoment.format(Constants.TIMEFORMAT)
-        const endDateText = endDateTimeMoment.format(Constants.DATEFORMAT)
-        const endTimeText = endDateTimeMoment.format(Constants.TIMEFORMAT)
-
-        const dbKey = DbKeys.getEncodedDbKey(startDateTimeMoment)
-        const nextMillisecondText = DbKeys.getDecodedDateText(DbKeys.getNextMillisecondEncodedDbKey(dbKey))
-
-        const dbKeyText = DbKeys.getDecodedDateText(dbKey)
-
-        schedule = {
-            name: 'test schedule',
-            type: 'test',
-            startdate: startDateText,
-            enddate: endDateText,
-            starttime: startTimeText,
-            endtime: endTimeText,
-            days: 31
-        }
-
-        return {
-            startDateTimeMoment,
-            endDateTimeMoment,
-            startDateText,
-            startTimeText,
-            endDateText,
-            endTimeText,
-            nextMillisecondText,
-            dbKey,
-            dbKeyText,
-            schedule
-        }
-    }
-
-    // ------------------------------------------------------------------------------------
-
-    it('should test insertSchedule', (done) => {
-
-        const scheduleInfo = getTestSchedule()
-
-        db.insertSchedule(scheduleInfo.schedule)
-            .then((dbKey) => { return db.getSchedule(dbKey) })
-            .then((jsonSchedule) => {
-                expect(jsonSchedule.exists).to.be.true
-                expect(jsonSchedule.schedule.name).to.equal(schedule.name)
-                return db.delSchedule(scheduleInfo.dbKey)
-            })
-            .then((dbKey) => { return db.getSchedule(dbKey) })
-            .then((jsonSchedule) => {
-                expect(jsonSchedule.exists).to.be.false
-                expect(jsonSchedule.schedule).to.be.undefined
-                return db.delSchedule(scheduleInfo.dbKey)
-            })
-            .then((dbKey) => { return db.getSchedules() })
-            .then((schedules) => {
-                expect(schedules.size).to.equal(dbCount)
+    before((done) => {
+        SeedDb.seed(testDbPath)
+            .then((o) => {
+                recurringDb = new RecurringDb(testDbPath)
                 done()
             })
             .catch((err) => {
-                done()
-                console.log('ERROR: ', err)
-            })
-
-    })
-
-    it('should test updateSchedule', (done) => {
-
-        const scheduleInfo = getTestSchedule()
-
-        const updatedName = 'Updated Schedule'
-
-        db.insertSchedule(scheduleInfo.schedule)
-            .then((dbKey) => { return db.getSchedule(dbKey) })
-            .then((jsonSchedule) => {
-                expect(jsonSchedule.exists).to.be.true
-                expect(jsonSchedule.schedule.name).to.equal(scheduleInfo.schedule.name)
-                jsonSchedule.schedule.name = updatedName
-                return db.updateSchedule(jsonSchedule.schedule.dbKey, jsonSchedule.schedule)
-            })
-            .then((jsonSchedule) => {
-                expect(jsonSchedule.name).to.equal(updatedName)
-                return db.delSchedule(jsonSchedule.dbKey)
-            })
-            .then(() => { return db.getSchedules() })
-            .then((schedules) => {
-                expect(schedules.size).to.equal(dbCount)
-                done()
-            })
-            .catch((err) => {
-                console.log('ERROR: ', err)
-                assert.fail(error)
+                console.error(err.stack)
                 done()
             })
 
@@ -125,146 +34,232 @@ describe('Recurring DB', () => {
 
     it('should test getSchedule', (done) => {
 
-        const scheduleInfo = getTestSchedule()
+        recurringDb.getSchedule(1)
+            .then((schedule) => {
 
-        db.insertSchedule(scheduleInfo.schedule)
-            .then((dbKey) => { return db.getSchedule(dbKey) })
-            .then((jsonSchedule) => {
-                expect(jsonSchedule.exists).to.be.true
-                expect(jsonSchedule.schedule.name).to.equal(scheduleInfo.schedule.name)
-                return db.delSchedule(scheduleInfo.dbKey)
-            })
-            .then((dbKey) => { return db.getSchedule(dbKey) })
-            .then((jsonSchedule) => {
-                expect(jsonSchedule.exists).to.be.false
-                expect(jsonSchedule.schedule).to.be.undefined
-                return db.delSchedule(scheduleInfo.dbKey)
-            })
-            .then((dbKey) => { return db.getSchedules() })
-            .then((schedules) => {
-                expect(schedules.size).to.equal(dbCount)
+                expect(schedule).not.to.be.null
+                expect(schedule.id).to.equal(1)
+                expect(schedule.name).to.equal('recurring 01')
+                expect(schedule.type).to.equal(2)
+                expect(schedule.typeDescription).to.equal('system')
+
+                expect(schedule.startdate).to.equal('2017-10-01')
+                expect(schedule.enddate).to.equal('2017-10-31')
+                expect(schedule.starttime).to.equal('15:00')
+                expect(schedule.endtime).to.equal('15:30')
+                expect(schedule.days).to.equal(31)
+
+                expect(moment(schedule.startdate, Constants.DATETIMEFORMAT).isValid()).to.be.true
+                expect(moment(schedule.enddate, Constants.DATETIMEFORMAT).isValid()).to.be.true
+
+                expect(moment(schedule.startdate, Constants.DATETIMEFORMAT).isValid()).to.be.true
+                expect(moment(schedule.enddate, Constants.DATETIMEFORMAT).isValid()).to.be.true
+
                 done()
             })
             .catch((err) => {
+                console.error(err.stack)
                 done()
-                console.log('ERROR: ', err)
             })
 
     })
 
     it('should test getSchedules', (done) => {
 
-        const scheduleInfo = getTestSchedule()
-
-        let insertedKey = ''
-
-        db.insertSchedule(scheduleInfo.schedule)
-            .then((dbKey) => {
-                insertedKey = dbKey
-                return db.getSchedules()
-            })
-            .then((jsonSchedules) => {
-                expect(jsonSchedules.size).to.equal(dbCount + 1)
-                return db.delSchedule(insertedKey)
-            })
-            .then(() => { return db.getSchedules() })
+        recurringDb.getSchedules()
             .then((schedules) => {
-                expect(schedules.size).to.equal(dbCount)
+
+                expect(schedules[0]).not.to.be.null
+                expect(schedules[0].id).to.equal(1)
+                expect(schedules[0].name).to.equal('recurring 01')
+                expect(schedules[0].type).to.equal(2)
+                expect(schedules[0].typeDescription).to.equal('system')
+
+                expect(schedules[0].startdate).to.equal('2017-10-01')
+                expect(schedules[0].enddate).to.equal('2017-10-31')
+                expect(schedules[0].starttime).to.equal('15:00')
+                expect(schedules[0].endtime).to.equal('15:30')
+                expect(schedules[0].days).to.equal(31)
+
+                expect(moment(schedules[0].startdate, Constants.DATETIMEFORMAT).isValid()).to.be.true
+                expect(moment(schedules[0].enddate, Constants.DATETIMEFORMAT).isValid()).to.be.true
+
+                expect(moment(schedules[0].startdate, Constants.DATETIMEFORMAT).isValid()).to.be.true
+                expect(moment(schedules[0].enddate, Constants.DATETIMEFORMAT).isValid()).to.be.true
+
                 done()
             })
             .catch((err) => {
+                console.error(err.stack)
                 done()
-                console.log('ERROR: ', err)
             })
 
     })
 
-    it('should test delSchedule', (done) => {
+    it('should test updateSchedule', (done) => {
 
-        const scheduleInfo = getTestSchedule()
+        let schedule
 
-        let insertedKey = ''
+        const scheduleName = `UPDATED NAME ${moment().format('hhmmssSSSS')}`
 
-        db.insertSchedule(scheduleInfo.schedule)
-            .then((dbKey) => {
-                insertedKey = dbKey
-                return db.getSchedule(dbKey)
+        recurringDb.getSchedule(10)
+            .then((o) => {
+
+                schedule = o
+
             })
-            .then((jsonSchedule) => {
-                expect(jsonSchedule.exists).to.be.true
-                expect(jsonSchedule.schedule.name).to.equal(scheduleInfo.schedule.name)
-                return db.delSchedule(jsonSchedule.schedule.dbKey)
-            })
-            .then((dbKey) => {
-                return db.getSchedule(dbKey)
-            })
-            .then((jsonSchedule) => {
-                expect(jsonSchedule.exists).to.be.false
-                expect(jsonSchedule.schedule).to.be.undefined
-                return db.getSchedules()
-            })
-            .then((schedules) => {
-                expect(schedules.size).to.equal(dbCount)
-                done()
+            .then(() => {
+
+                schedule.name = scheduleName
+
+                recurringDb.updateSchedule(schedule)
+                    .then(() => {
+                        recurringDb.getSchedule(10)
+                            .then((updateSchedule) => {
+
+                                expect(updateSchedule).not.to.be.null
+                                expect(updateSchedule.id).to.equal(10)
+                                expect(updateSchedule.name).to.equal(scheduleName)
+                                expect(updateSchedule.type).to.equal(2)
+                                expect(updateSchedule.typeDescription).to.equal('system')
+                
+                                expect(updateSchedule.startdate).to.equal('2017-10-10')
+                                expect(updateSchedule.enddate).to.equal('2017-10-22')
+                                expect(updateSchedule.starttime).to.equal('01:00')
+                                expect(updateSchedule.endtime).to.equal('01:30')
+                                expect(updateSchedule.days).to.equal(21)
+                
+                                expect(moment(updateSchedule.startdate, Constants.DATETIMEFORMAT).isValid()).to.be.true
+                                expect(moment(updateSchedule.enddate, Constants.DATETIMEFORMAT).isValid()).to.be.true
+                
+                                expect(moment(updateSchedule.startdate, Constants.DATETIMEFORMAT).isValid()).to.be.true
+                                expect(moment(updateSchedule.enddate, Constants.DATETIMEFORMAT).isValid()).to.be.true
+                                                
+                                done()
+                            })
+
+                    })
+
             })
             .catch((err) => {
+                console.error(err.stack)
                 done()
-                console.log('ERROR: ', err)
             })
 
     })
 
-    it('should test getNextDbKey', (done) => {
+    it('should test insertSchedule', (done) => {
 
-        const scheduleInfo = getTestSchedule()
+        let schedule
+        let insertedId
 
-        db.insertSchedule(scheduleInfo.schedule)
-            .then((dbKey) => { return db.getNextDbKey(dbKey) })
-            .then((nextDbKey) => {
-                expect(DbKeys.getDecodedDateText(nextDbKey)).to.equal(scheduleInfo.nextMillisecondText)
-                return db.delSchedule(scheduleInfo.dbKey)
+        const scheduleName = `UPDATED NAME ${moment().format('hhmmssSSSS')}`
+
+        recurringDb.getSchedule(10)
+            .then((o) => {
+
+                schedule = o
+
             })
-            .then((dbKey) => { return db.getSchedule(dbKey) })
-            .then((jsonSchedule) => {
-                expect(jsonSchedule.exists).to.be.false
-                expect(jsonSchedule.schedule).to.be.undefined
-                return db.delSchedule(scheduleInfo.dbKey)
-            })
-            .then((dbKey) => { return db.getSchedules() })
-            .then((schedules) => {
-                expect(schedules.size).to.equal(dbCount)
-                done()
+            .then(() => {
+
+                schedule.name = scheduleName
+
+                recurringDb.insertSchedule(schedule)
+                    .then((o) => {
+                        insertedId = o.lastID
+                        return recurringDb.getSchedule(insertedId)
+                    })
+                    .then((updateSchedule) => {
+
+                        expect(updateSchedule).not.to.be.null
+                        expect(updateSchedule.id).to.equal(insertedId)
+                        expect(updateSchedule.name).to.equal(scheduleName)
+                        expect(updateSchedule.type).to.equal(2)
+                        expect(updateSchedule.typeDescription).to.equal('system')
+        
+                        expect(updateSchedule.startdate).to.equal('2017-10-10')
+                        expect(updateSchedule.enddate).to.equal('2017-10-22')
+                        expect(updateSchedule.starttime).to.equal('01:00')
+                        expect(updateSchedule.endtime).to.equal('01:30')
+                        expect(updateSchedule.days).to.equal(21)
+        
+                        expect(moment(updateSchedule.startdate, Constants.DATETIMEFORMAT).isValid()).to.be.true
+                        expect(moment(updateSchedule.enddate, Constants.DATETIMEFORMAT).isValid()).to.be.true
+        
+                        expect(moment(updateSchedule.startdate, Constants.DATETIMEFORMAT).isValid()).to.be.true
+                        expect(moment(updateSchedule.enddate, Constants.DATETIMEFORMAT).isValid()).to.be.true
+
+                        return recurringDb.deleteSchedule(insertedId)
+                    })
+                    .then((o) => {
+
+                        expect(o.changes).to.equal(1)
+                        done()
+                    })
+
             })
             .catch((err) => {
+                console.error(err.stack)
                 done()
-                console.log('ERROR: ', err)
             })
 
     })
 
-    it('should test getMappedSchedules', (done) => {
+    it('should test deleteSchedule', (done) => {
 
-        const scheduleInfo = getTestSchedule()
+        let schedule
+        let insertedId
 
-        let insertedKey = ''
+        const scheduleName = `UPDATED NAME ${moment().format('hhmmssSSSS')}`
 
-        db.insertSchedule(scheduleInfo.schedule)
-            .then((dbKey) => {
-                insertedKey = dbKey
-                return db.getMappedSchedules()
+        recurringDb.getSchedule(10)
+            .then((o) => {
+
+                schedule = o
+
             })
-            .then((jsonSchedules) => {
-                expect(jsonSchedules.size).to.equal(dbCount + 1)
-                return db.delSchedule(insertedKey)
-            })
-            .then(() => { return db.getSchedules() })
-            .then((schedules) => {
-                expect(schedules.size).to.equal(dbCount)
-                done()
+            .then(() => {
+
+                schedule.name = scheduleName
+
+                recurringDb.insertSchedule(schedule)
+                    .then((o) => {
+                        insertedId = o.lastID
+                        return recurringDb.getSchedule(insertedId)
+                    })
+                    .then((updateSchedule) => {
+
+                        expect(updateSchedule).not.to.be.null
+                        expect(updateSchedule.id).to.equal(insertedId)
+                        expect(updateSchedule.name).to.equal(scheduleName)
+                        expect(updateSchedule.type).to.equal(2)
+                        expect(updateSchedule.typeDescription).to.equal('system')
+        
+                        expect(updateSchedule.startdate).to.equal('2017-10-10')
+                        expect(updateSchedule.enddate).to.equal('2017-10-22')
+                        expect(updateSchedule.starttime).to.equal('01:00')
+                        expect(updateSchedule.endtime).to.equal('01:30')
+                        expect(updateSchedule.days).to.equal(21)
+        
+                        expect(moment(updateSchedule.startdate, Constants.DATETIMEFORMAT).isValid()).to.be.true
+                        expect(moment(updateSchedule.enddate, Constants.DATETIMEFORMAT).isValid()).to.be.true
+        
+                        expect(moment(updateSchedule.startdate, Constants.DATETIMEFORMAT).isValid()).to.be.true
+                        expect(moment(updateSchedule.enddate, Constants.DATETIMEFORMAT).isValid()).to.be.true
+
+                        return recurringDb.deleteSchedule(insertedId)
+                    })
+                    .then((o) => {
+
+                        expect(o.changes).to.equal(1)
+                        done()
+                    })
+
             })
             .catch((err) => {
+                console.error(err.stack)
                 done()
-                console.log('ERROR: ', err)
             })
 
     })

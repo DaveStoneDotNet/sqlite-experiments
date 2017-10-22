@@ -106,7 +106,8 @@ class RecurringDb {
                                       startdate, 
                                       enddate, 
                                       starttime, 
-                                      endtime
+                                      endtime, 
+                                      days
                                )
                                VALUES 
                                (
@@ -115,8 +116,9 @@ class RecurringDb {
                                       $startdate, 
                                       $enddate, 
                                       $starttime, 
-                                      $endtime
-                               )
+                                      $endtime, 
+                                      $days
+                                    )
                               `,
                               {
                                   $name: jsonRecurring.name, 
@@ -124,8 +126,9 @@ class RecurringDb {
                                   $startdate: jsonRecurring.startdate,
                                   $enddate: jsonRecurring.enddate, 
                                   $starttime: jsonRecurring.starttime,
-                                  $endtime: jsonRecurring.endtime
-                              })
+                                  $endtime: jsonRecurring.endtime, 
+                                  $days: jsonRecurring.days
+                                })
 
             })
 
