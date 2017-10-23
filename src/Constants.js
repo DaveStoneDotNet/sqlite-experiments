@@ -36,10 +36,6 @@ const SCHEDULES_DB      =  'schedules'
 const RECURRING_DB      =  'recurring'
 const UNBOUNDED_DB      =  'unbounded'
 
-const SCHEDULES_DB_PATH =  './data/schedules'
-const RECURRING_DB_PATH =  './data/recurring'
-const UNBOUNDED_DB_PATH =  './data/unbounded'
-
 const SYSTEM_SCHEDULE   =  'system'
 const USER_SCHEDULE     =  'user'
 const ALLDAY_SCHEDULE   =  'all-day'

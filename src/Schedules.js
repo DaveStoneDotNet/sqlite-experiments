@@ -9,10 +9,10 @@ const UnboundedDb = require('./UnboundedDb')
 
 class Schedules {
 
-    constructor() {
-        this.SchedulesDb = new SchedulesDb(Constants.SCHEDULES_DB_PATH)
-        this.RecurringDb = new RecurringDb(Constants.RECURRING_DB_PATH)
-        this.UnboundedDb = new UnboundedDb(Constants.UNBOUNDED_DB_PATH)
+    constructor(path = './data/Schedules.db') {
+        this.SchedulesDb = new SchedulesDb(path)
+        this.RecurringDb = new RecurringDb(path)
+        this.UnboundedDb = new UnboundedDb(path)
     }
 
     // ------------------------------------------------------------
@@ -25,24 +25,24 @@ class Schedules {
 
         return new Promise((resolve, reject) => {
 
-            const mappdeSchedules = new Set()
+            const mappedSchedules = []
 
             this.SchedulesDb.getSchedules(localDate.start.text, localDate.end.text)
                 .then((schedules) => {
 
                     schedules.forEach((schedule) => {
-                        mappdeSchedules.add({
+                        mappedSchedules.push({
                             id: schedule.id,
                             name: schedule.name,
                             type: schedule.type,
                             start: schedule.startdatetime,
                             end: schedule.enddatetime,
-                            days: 0, 
+                            days: 0,
                             dbSource: 'schedules'
                         })
                     })
 
-                    resolve(mappdeSchedules)
+                    resolve(mappedSchedules)
                 })
                 .catch((err) => reject(err))
         })
@@ -72,7 +72,7 @@ class Schedules {
 
     static includeRecurring(appDate, recurringSchedule) {
 
-        const includedSchedules = new Set()
+        const includedSchedules = []
 
         const days = Schedules.getDaysArray(recurringSchedule)
 
@@ -90,7 +90,7 @@ class Schedules {
 
                 const isInRange = (m.isSame(scheduleStartMoment) || m.isAfter(scheduleStartMoment)) && m.isBefore(scheduleEndMoment)
 
-                //console.log(`NAME: ${recurringSchedule.name} : IS IN RANGE: ${isInRange} : DATE: ${m.format(Constants.DATEFORMAT)} : START: ${scheduleStartMoment.format(Constants.DATEFORMAT)} : END: ${scheduleEndMoment.format(Constants.DATEFORMAT)} : IS BEFORE: ${m.isBefore(scheduleEndMoment)} : IS AFTER: ${m.isAfter(scheduleStartMoment)} : IS SAME: ${m.isSame(scheduleStartMoment)}`)
+                // console.log(`NAME: ${recurringSchedule.name} : IS IN RANGE: ${isInRange} : DATE: ${m.format(Constants.DATEFORMAT)} : START: ${scheduleStartMoment.format(Constants.DATEFORMAT)} : END: ${scheduleEndMoment.format(Constants.DATEFORMAT)} : IS BEFORE: ${m.isBefore(scheduleEndMoment)} : IS AFTER: ${m.isAfter(scheduleStartMoment)} : IS SAME: ${m.isSame(scheduleStartMoment)}`)
 
                 if (isInRange) {
                     const schedule = {
@@ -99,10 +99,10 @@ class Schedules {
                         type: recurringSchedule.type,
                         start: Common.getDateTimeText(m.format(Constants.DATEFORMAT), recurringSchedule.starttime),
                         end: Common.getDateTimeText(m.format(Constants.DATEFORMAT), recurringSchedule.endtime),
-                        days: recurringSchedule.days, 
+                        days: recurringSchedule.days,
                         dbSource: 'recurring'
                     }
-                    includedSchedules.add(schedule)
+                    includedSchedules.push(schedule)
                 }
             }
         }
@@ -113,7 +113,7 @@ class Schedules {
 
         return new Promise((resolve, reject) => {
 
-            const mappdeSchedules = new Set()
+            const mappedSchedules = []
 
             this.RecurringDb.getSchedules(appDate.start.text, appDate.end.text)
                 .then((recurringSchedules) => {
@@ -121,10 +121,10 @@ class Schedules {
                     recurringSchedules.forEach((recurringSchedule) => {
 
                         const includedSchedules = Schedules.includeRecurring(appDate, recurringSchedule)
-                        includedSchedules.forEach((s) => mappdeSchedules.add(s))
+                        includedSchedules.forEach((s) => mappedSchedules.push(s))
                     })
 
-                    resolve(mappdeSchedules)
+                    resolve(mappedSchedules)
                 })
                 .catch((err) => reject(err))
         })
@@ -137,27 +137,27 @@ class Schedules {
     static getPartitionedSchedules(schedules) {
 
         const partitionedSchedules = {
-            systemSchedules: new Set(),
-            allDaySchedules: new Set()
+            systemSchedules: [],
+            allDaySchedules: []
         }
 
         schedules.forEach((s) => {
             switch (s.type) {
                 case Constants.SYSTEM_TYPE:
-                    partitionedSchedules.systemSchedules.add(s)
+                    partitionedSchedules.systemSchedules.push(s)
                     break
                 case Constants.ALLDAY_TYPE:
-                    partitionedSchedules.allDaySchedules.add(s)
+                    partitionedSchedules.allDaySchedules.push(s)
                     break
             }
         })
-        
+
         return partitionedSchedules
     }
 
     static getMappedSystemSchedules(appDate, systemSchedules) {
 
-        const mappedSchedules = new Set()
+        const mappedSchedules = []
 
         systemSchedules.forEach((systemSchedule) => {
 
@@ -173,13 +173,13 @@ class Schedules {
                     const startText = `${m.format(Constants.DATEFORMAT)} ${systemSchedule.starttime}`
                     const endText = `${m.format(Constants.DATEFORMAT)} ${systemSchedule.endtime}`
 
-                    mappedSchedules.add({
+                    mappedSchedules.push({
                         id: systemSchedule.id,
                         name: systemSchedule.name,
                         type: systemSchedule.type,
                         start: startText,
                         end: endText,
-                        days: systemSchedule.days, 
+                        days: systemSchedule.days,
                         dbSource: 'unbounded'
                     })
                 }
@@ -191,7 +191,7 @@ class Schedules {
 
     static getMappedAllDaySchedules(appDate, allDaySchedules) {
 
-        const mappedSchedules = new Set()
+        const mappedSchedules = []
 
         allDaySchedules.forEach((allDaySchedule) => {
 
@@ -207,13 +207,13 @@ class Schedules {
                     const startText = `${m.format(Constants.DATEFORMAT)} 00:00`
                     const endText = `${m.format(Constants.DATEFORMAT)} 11:59:59.999 PM`
 
-                    mappedSchedules.add({
+                    mappedSchedules.push({
                         id: allDaySchedule.id,
                         name: allDaySchedule.name,
                         type: allDaySchedule.type,
                         start: startText,
                         end: endText,
-                        days: allDaySchedule.days, 
+                        days: allDaySchedule.days,
                         dbSource: 'unbounded'
                     })
                 }
@@ -227,7 +227,7 @@ class Schedules {
 
         return new Promise((resolve, reject) => {
 
-            let mappdeSchedules = new Set()
+            let mappedSchedules = []
 
             this.UnboundedDb.getSchedules()
                 .then((schedules) => {
@@ -236,13 +236,121 @@ class Schedules {
                     const systemSchedules = Schedules.getMappedSystemSchedules(appDate, partitionedSchedules.systemSchedules)
                     const allDaySchedules = Schedules.getMappedAllDaySchedules(appDate, partitionedSchedules.allDaySchedules)
 
-                    mappdeSchedules = new Set([...systemSchedules.values(), ...allDaySchedules.values()])
+                    mappedSchedules = systemSchedules.concat(allDaySchedules)
 
-                    resolve(mappdeSchedules)
+                    resolve(mappedSchedules)
                 })
                 .catch((err) => reject(err))
         })
 
+    }
+
+    // ------------------------------------------------------------
+
+    getMappedScheduleDefinitions(start, end) {
+
+        return new Promise((resolve, reject) => {
+            const mappedSchedules = []
+            this.SchedulesDb.getSchedules(start, end)
+                .then((schedules) => {
+                    schedules.forEach((schedule) => {
+                        mappedSchedules.push({
+                            id: schedule.id,
+                            name: schedule.name,
+                            type: schedule.type,
+                            start: schedule.startdatetime,
+                            end: schedule.enddatetime,
+                            starttime: '',
+                            endtime: '',
+                            days: 0,
+                            dbSource: schedule.dbSource
+                        })
+                    })
+                    resolve(mappedSchedules)
+                })
+                .catch((err) => reject(err))
+        })
+
+    }
+
+    getMappedRecurringDefinitions() {
+
+        return new Promise((resolve, reject) => {
+
+            const mappedSchedules = []
+
+            this.RecurringDb.getSchedules()
+                .then((schedules) => {
+
+                    schedules.forEach((schedule) => {
+                        mappedSchedules.push({
+                            id: schedule.id,
+                            name: schedule.name,
+                            type: schedule.type,
+                            start: schedule.startdate,
+                            end: schedule.enddate,
+                            starttime: schedule.starttime,
+                            endtime: schedule.endtime,
+                            days: schedule.days,
+                            dbSource: schedule.dbSource
+                        })
+                    })
+
+                    resolve(mappedSchedules)
+                })
+                .catch((err) => reject(err))
+        })
+    }
+
+    getMappedUnboundedDefinitions() {
+
+        return new Promise((resolve, reject) => {
+
+            let mappedSchedules = []
+
+            this.UnboundedDb.getSchedules()
+                .then((schedules) => {
+
+                    schedules.forEach((schedule) => {
+                        mappedSchedules.push({
+                            id: schedule.id,
+                            name: schedule.name,
+                            type: schedule.type,
+                            start: '',
+                            end: '',
+                            starttime: schedule.starttime,
+                            endtime: schedule.endtime,
+                            days: schedule.days ? schedule.days : 0,
+                            dbSource: schedule.dbSource
+                        })
+                    })
+
+                    resolve(mappedSchedules)
+                })
+                .catch((err) => reject(err))
+        })
+
+    }
+
+    getScheduleDefinitions(start, end) {
+
+        const appDate = Common.getAppDate(start, end)
+
+        return new Promise((resolve, reject) => {
+
+            const p1 = this.getMappedScheduleDefinitions(appDate.start.text, appDate.end.text)
+            const p2 = this.getMappedRecurringDefinitions()
+            const p3 = this.getMappedUnboundedDefinitions()
+
+            Promise.all([p1, p2, p3])
+                .then((mappedSchedules) => {
+                    const combinedSchedules = mappedSchedules[0].concat(mappedSchedules[1], mappedSchedules[2])
+                    resolve(combinedSchedules)
+                })
+                .catch((err) =>
+                    reject(err)
+                )
+        })
     }
 
     // ------------------------------------------------------------
@@ -252,7 +360,7 @@ class Schedules {
         const appDate1 = Common.getAppDate(start, end)
         const appDate2 = Common.getAppDate(start, end)
         const appDate3 = Common.getAppDate(start, end)
-        
+
         return new Promise((resolve, reject) => {
 
             const p1 = this.getMappedSchedules(appDate1)
@@ -261,9 +369,8 @@ class Schedules {
 
             Promise.all([p1, p2, p3])
                 .then((mappedSchedules) => {
-                    const combinedSchedules = new Set([...mappedSchedules[0], ...mappedSchedules[1], ...mappedSchedules[2]])
+                    const combinedSchedules = mappedSchedules[0].concat(mappedSchedules[1], mappedSchedules[2])
                     resolve(combinedSchedules)
-                    console.log('FINISHED')
                 })
                 .catch((err) =>
                     reject(err)

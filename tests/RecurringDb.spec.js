@@ -8,7 +8,7 @@ const SeedDb = require('../src/SeedDb')
 
 const RecurringDb = require('../src/RecurringDb.js')
 
-describe('Schedule DB', () => {
+describe('Recurring DB', () => {
 
     const INSERT_DATE = '10/05/2017 05:00 PM'
 

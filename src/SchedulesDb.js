@@ -18,7 +18,8 @@ class SchedulesDb {
                                        A.type, 
                                        A.startdatetime, 
                                        A.enddatetime, 
-                                       B.name typeDescription
+                                       B.name typeDescription, 
+                                       'schedules' AS dbSource
                                   FROM Schedule     A
                                   JOIN ScheduleType B ON B.id = A.type
                                  WHERE A.id = ?`, id))
@@ -47,7 +48,8 @@ class SchedulesDb {
                                       A.type, 
                                       A.startdatetime, 
                                       A.enddatetime, 
-                                      B.name typeDescription
+                                      B.name typeDescription, 
+                                      'schedules' AS dbSource
                                  FROM Schedule     A
                                  JOIN ScheduleType B ON B.id = A.type
                                 WHERE DATETIME(A.startdatetime) > DATETIME($startdatetime)

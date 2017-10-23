@@ -21,7 +21,8 @@ class RecurringDb {
                                 	   A.starttime, 
                                 	   A.endtime, 
                                        A.days, 
-                                       B.name typeDescription
+                                       B.name typeDescription, 
+                                       'recurring' AS dbSource
                                   FROM Recurring    A
                                   JOIN ScheduleType B ON B.id = A.type
                                  WHERE A.id = ?`, 
@@ -55,7 +56,8 @@ class RecurringDb {
                                 	   A.starttime, 
                                 	   A.endtime, 
                                 	   A.days, 
-                                       B.name typeDescription
+                                       B.name typeDescription, 
+                                       'recurring' AS dbSource
                                   FROM Recurring A
                                   JOIN ScheduleType B ON B.id = A.type
                                  WHERE DATETIME(DATETIME(A.startdate || ' ' || A.starttime)) > DATETIME($startdate)

@@ -20,7 +20,8 @@ class UnboundedDb {
                                 	   A.starttime, 
                                 	   A.endtime, 
                                        A.days, 
-                                       B.name typeDescription
+                                       B.name typeDescription, 
+                                       'unbounded' AS dbSource
                                   FROM Unbounded    A
                                   JOIN ScheduleType B ON B.id = A.type
                                  WHERE A.id = ?`,
@@ -41,7 +42,8 @@ class UnboundedDb {
                                 	   A.starttime, 
                                 	   A.endtime, 
                                 	   A.days, 
-                                       B.name typeDescription
+                                       B.name typeDescription, 
+                                       'unbounded' AS dbSource
                                   FROM Unbounded A
                                   JOIN ScheduleType B ON B.id = A.type
                               `)

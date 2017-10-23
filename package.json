@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "debug": "node --inspect-brk server.js",
-    "test": "mocha tests/UnboundedDb.spec.js",
+    "test": "mocha tests/*.spec.js",
     "testy": "mocha --watch tests/*.spec.js"
 },
 "dependencies": {
